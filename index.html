@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>事件框架测试</title>
+    <script src="myEvent.js"></script>
+    <script src="extendEvent.js"></script>
+    <script src="another.js"></script>
+    <script src="linkEvent.js"></script>
+    <style>
+        *{
+
+        }
+    </style>
+</head>
+<body>
+
+<div style="width: 200px;background-color: darkorange;" id="box">
+    这是一个测试的Div
+    <p>这是一个段落标签p1</p>
+
+    <p>这是一个段落标签p2</p>
+
+    <p>这是一个段落标签p3</p>
+
+    <p>这是一个段落标签p4
+        <span>aaaaaaaaa</span>
+    </p>
+    <div id="hezi">
+        <h1>标题</h1>
+    </div>
+    <span>aaaaaaaaa</span>
+</div>
+
+<p class="ppp" id="ppp">这是一个段落标签p1</p>
+<p>这是一个段落标签p2</p>
+<button id="btn">实现三击效果</button>
+<script>
+   /* //在引入的 js文件里没有创建对象的时候, 使用时先创建对象
+    var obj = new $$();
+    var box = obj.$id('box');
+    console.log(box);*/
+
+    /*//在引入的 js文件里已经创建对象, 直接使用
+    var box = $$.$id('box');
+    console.log(box);*/
+
+   /*//以标签名查询
+    console.log($$.$tag('p'));*/
+
+   /*//正则 (div>p)测试
+    var str = 'div > p';
+    var regex = /\w+/g;
+    console.log(str.match(regex));*/
+
+    console.log($$.$tab('div>p'));
+
+    //判断父节点的子元素 ....暂时没时间写....
+    function searchTag(father,child) {
+        var par = null;
+        if (typeof father == "object") {
+            par =  father;
+        } else {
+            par =  $$.$id(father)
+        }
+
+        var tagName = $$.$tag(child)[0].parentNode.parentNode;
+
+        if (tagName == par) {
+            console.log('是它的孙子节点');
+            return true;
+        } else {
+            console.log('不是它的孙子节点');
+            return false;
+        }
+    }
+   searchTag('box','p');
+
+   /* $$.play();
+    $$.eat();
+    $$.drink();*/
+
+    $$.on("box", 'click', function () {
+        alert('被点击了');
+    });
+
+
+   /*//制作鼠标单击 双击 三击
+    var btn = $$.$id('btn');
+    var t1 = t2 = t3 = 0;
+    var count = 0;
+
+    function nClick(n) {
+        switch (n) {
+            case 1:
+                this.onmouseup = function () {
+                    console.log('单击');
+                };
+                break;
+            case 2:
+                this.onmousedown = function (e) {
+                    if (t1 == 0) {
+                        t1 = e.timeStamp;
+                    }
+                    t3 = e.timeStamp;
+
+                    if ((t3 - t1) > 1000) {
+                        t1 = t3;
+                        count = 0;
+                    }
+                    console.log('mousedown');
+                };
+
+                this.onmouseup = function (e) {
+                    t2 = e.timeStamp;
+                    if (count == 2 && (t2 - t1) < 1000) {
+                        console.log('点击了 2' + ' 次');
+                        count = 0;
+                        t1 = 0;
+                    }
+                    count++;
+                };
+                break;
+        }
+    }*/
+
+   //t1 down
+   //t2 up (每触发一次鼠标弹起事件,t2的值都是会增加的, 除非浏览器刷新值才变为零)
+   //t3 down
+   //t4 up
+   //直接简写成下面的形式
+  var btn = $$.$id('btn');
+   var t1 = t2 = t3 = 0;
+   var count = 0;
+   function nClick(n) {
+       this.onmousedown = function (e) {
+           //t1 表示第一次鼠标按下去的时间
+           if (t1 == 0) {
+               t1 = e.timeStamp;
+           }
+           //t3 表示鼠标 按下 弹起 再次按下的时间
+           t3 = e.timeStamp;
+
+           //t3-t1>1000 表示两次鼠标按下时间间隔太久, 不认为是双击事件
+           if ((t3 - t1) > 1000) {
+               t1 = t3;
+               count = 0;
+           }
+       };
+
+       this.onmouseup = function (e) {
+           t2 = e.timeStamp;
+           if (count == n && (t2 - t1) < 1000) {
+               console.log('点击了 ' + n + ' 次');
+               count = 0;
+               t1 = 0;
+           }
+           count++;
+       };
+   }
+
+   btn.constructor.prototype.nclick = nClick;
+   btn.nclick(3);
+
+  $$.nClick(3);
+  $$.$group('.ppp, #box, h1, span');
+   //测试 添加内容到所查找的DOM节点里面
+    var box = $$.$group('.ppp, #box, h1, span');
+    for (var i = 0;i < box.length;i++) {
+        var txt = document.createTextNode(box[i].tagName.toLowerCase() + i + " ");
+
+       box[i].appendChild(txt);
+    }
+
+   //
+    function mySplit(str) {
+        var result = [];
+        var temp = str.match(/(,)?([0-9A-Za-z#._-]+)/g);
+
+        for (var r in temp) {
+            if (r == 0){
+                 result.push(temp[0])
+            } else {
+                temp[r].replace(',', '');
+
+                result.push(temp[r]);
+            }
+        }
+        return result;
+    }
+
+  console.log('.ppp, #box, h1, span');
+
+    //测试id class tag的查找
+  var newtype = $$.$('div,.ppp');
+  console.log(newtype);
+  var p = document.getElementsByTagName('p');
+  console.log(p);
+</script>
+
+</body>
+</html>
